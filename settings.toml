@@ -9,5 +9,5 @@ app_port = 8000
 db_name = "postgres"
 db_user = "user"
 db_password = "password"
-db_host = "pg_db"
-db_port = 5433
+db_host = "localhost"
+db_port = 5432

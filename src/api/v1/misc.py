@@ -4,7 +4,6 @@ from configs.app import settings
 from schemas.misc_schema import HelthCheckSchema
 
 
-
 router = APIRouter()
 
 

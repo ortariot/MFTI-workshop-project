@@ -22,6 +22,7 @@ class DBConfig(BaseModel):
             f"postgresql+asyncpg://{self.db_user}:{self.db_password}"
             f"@{self.db_host}:{self.db_port}/{self.db_name}"
         )
+
     # driver://user:password@host:port/db_name
 
 
@@ -32,9 +33,7 @@ class Settings(BaseModel):
 
 env_settings = Dynaconf(settings_file=["settings.toml"])
 
-settings = Settings(
-    app=env_settings["app_settings"], db=env_settings["db_settings"]
-)
+settings = Settings(app=env_settings["app_settings"], db=env_settings["db_settings"])
 
 
 if __name__ == "__main__":
