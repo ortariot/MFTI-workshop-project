@@ -26,6 +26,11 @@ class CategoryRepository:
         )
 
         return result.scalar_one_or_none()
+    
+    async def exists_by_name(self, name: str) -> bool:
+
+        category = await self.get_by_name(name)
+        return category is not None
 
     async def get_all(self, skip: int = 0, limit: int = 100) -> list[Category]:
 
@@ -40,7 +45,7 @@ class CategoryRepository:
         category = Category(**category_date)
         self.db.add(category)
         await self.db.commit()
-        await self.db.refresh()
+        await self.db.refresh(category)
         return category
 
     async def update(self, category_id: Any, category_date: dict) -> Category:
@@ -52,7 +57,7 @@ class CategoryRepository:
                 setattr(category, key, value)
 
             await self.db.commit()
-            await self.db.refresh()
+            await self.db.refresh(category)
 
         return category
 

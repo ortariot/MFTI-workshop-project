@@ -22,7 +22,7 @@ class Posts(Base, BaseModelMixin):
         nullable=True,
     )
 
-    category = relationship("Category", back_populates="posts", lazy="select")
+    # category = relationship("Category", back_populates="posts", lazy="select")
 
     def __repr__(self) -> str:
         return f""
