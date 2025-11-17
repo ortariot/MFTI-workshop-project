@@ -6,8 +6,8 @@ from sqlalchemy import Column, String, Text
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.dialects.postgresql import UUID
 
-from .base import Base, BaseModelMixin
-# from configs.app import settings
+from src.models.base import Base, BaseModelMixin
+from src.configs.app import settings
 
 
 class Category(Base, BaseModelMixin):
@@ -34,7 +34,8 @@ async def create_db():
     engine = create_async_engine("postgresql+asyncpg://user:password@localhost:5432/postgres")
 
     async with engine.begin() as connection:
-        await connection.run_sync(Base.metadata.drop_all)
+        pass
+        # await connection.run_sync(Base.metadata.drop_all)
         # await connection.run_sync(Base.metadata.create_all)
 
 

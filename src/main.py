@@ -2,7 +2,8 @@ import uvicorn
 from fastapi import FastAPI
 
 from configs.app import settings
-from api.v1.misc import router as misc_router
+from src.api.v1.misc import router as misc_router
+from src.api.v1.caegory_api import router as category_router
 
 
 app = FastAPI(
@@ -12,8 +13,10 @@ app = FastAPI(
 )
 
 
-app.include_router(misc_router, prefix="/api/v1/misc", tags=["misc"])
 
+
+app.include_router(misc_router, prefix="/api/v1/misc", tags=["misc"])
+app.include_router(category_router, prefix="/api/v1/category", tags=["category"])
 
 if __name__ == "__main__":
     uvicorn.run(
