@@ -8,9 +8,7 @@ from configs import settings
 
 engine = create_async_engine(settings.db.dsl, echo=True)
 
-async_sesion_maker = sessionmaker(
-    engine, class_=AsyncSession, expire_on_commit=False
-)
+async_sesion_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:

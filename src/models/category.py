@@ -12,14 +12,12 @@ from src.configs.app import settings
 
 
 class Category(Base, BaseModelMixin):
-
     __tablename__ = "category"
 
     name = Column(String, nullable=False, unique=True)
     desc = Column(Text)
 
-    posts = relationship("Posts", backref="category_ref", lazy="select")
-
+    # posts = relationship("Posts", back_populates="category")
 
     def __repr__(self) -> str:
         return f"uuid - {self.uuid}, name - {self.name} desc - {self.desc}"
@@ -33,8 +31,9 @@ class Category(Base, BaseModelMixin):
 
 
 async def create_db():
-
-    engine = create_async_engine("postgresql+asyncpg://user:password@localhost:5432/postgres")
+    engine = create_async_engine(
+        "postgresql+asyncpg://user:password@localhost:5432/postgres"
+    )
 
     async with engine.begin() as connection:
         pass
@@ -43,5 +42,4 @@ async def create_db():
 
 
 if __name__ == "__main__":
-
     asyncio.run(create_db())

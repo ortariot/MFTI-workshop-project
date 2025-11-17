@@ -10,7 +10,6 @@ from .base import Base, BaseModelMixin
 
 
 class Posts(Base, BaseModelMixin):
-
     __tablename__ = "posts"
 
     media_id = Column(UUID(as_uuid=True), nullable=False, default=uuid.uuid4)
@@ -22,7 +21,9 @@ class Posts(Base, BaseModelMixin):
         nullable=True,
     )
 
-    # category = relationship("Category", back_populates="posts", lazy="select")
+    # category = relationship("Category", back_populates="posts")
+    # category = relationship("Category", backref="posts")
+    category = relationship("Category", lazy="joined")
 
     def __repr__(self) -> str:
         return f""

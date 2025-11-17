@@ -5,3 +5,8 @@ format:
 type:
 	@echo "typing"
 	poetry run mypy src
+
+run:
+	@echo "running app"
+	poetry run python src/main.py
+

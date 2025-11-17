@@ -14,4 +14,6 @@ class Base(DeclarativeBase):
 class BaseModelMixin:
     uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     create_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    update_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    update_at = Column(
+        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
