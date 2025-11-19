@@ -33,8 +33,11 @@ class Settings(BaseModel):
 
 env_settings = Dynaconf(settings_file=["settings.toml"])
 
-settings = Settings(app=env_settings["app_settings"], db=env_settings["db_settings"])
+settings = Settings(
+    app=env_settings["app_settings"],
+    db=env_settings["db_settings"],
+)
 
 
 if __name__ == "__main__":
-    print(settings.db.dsl)
+    print(settings)

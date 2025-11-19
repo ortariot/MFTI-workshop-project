@@ -2,12 +2,12 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, status, Query
 
 
-from src.schemas.category_schema import (
+from schemas.category_schema import (
     CategoryResponse,
     CategoryCreate,
     CategoryUpdate,
 )
-from src.services.category_service import get_category_service, CategoryService
+from services.category_service import get_category_service, CategoryService
 
 
 router = APIRouter()

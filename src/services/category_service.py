@@ -1,8 +1,8 @@
 from uuid import UUID
 from fastapi import Depends, HTTPException, status
 
-from src.repositories.category import CategoryRepository, get_category_reposetory
-from src.schemas.category_schema import (
+from repositories.category import CategoryRepository, get_category_reposetory
+from schemas.category_schema import (
     CategoryCreate,
     CategoryResponse,
     CategoryUpdate,

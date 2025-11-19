@@ -1,9 +1,9 @@
 from typing import List, Optional, Any
 
 from fastapi import Depends
-from src.repositories.posts import PostRepository, get_post_reposetory
+from repositories.posts import PostRepository, get_post_reposetory
 
-from src.schemas.post_schema import (
+from schemas.post_schema import (
     PostCreate,
     PostUpdate,
     PostResponse,

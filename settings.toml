@@ -4,7 +4,6 @@ app_name = "image cloude"
 app_host = "0.0.0.0"
 app_port = 8000
 
-
 [db_settings]
 db_name = "postgres"
 db_user = "user"

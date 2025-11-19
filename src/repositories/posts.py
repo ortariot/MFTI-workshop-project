@@ -7,8 +7,8 @@ from sqlalchemy import select, and_, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.models.post import Posts
-from src.database import get_session
+from models.post import Posts
+from database import get_session
 
 
 class PostRepository:

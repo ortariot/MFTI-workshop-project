@@ -4,8 +4,8 @@ from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.models.category import Category
-from src.database import get_session
+from models.category import Category
+from database import get_session
 
 
 class CategoryRepository:

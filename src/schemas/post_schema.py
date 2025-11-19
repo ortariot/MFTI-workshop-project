@@ -3,7 +3,7 @@ from uuid import UUID
 from typing import Optional, Any
 from pydantic import BaseModel, ConfigDict
 
-from src.schemas.category_schema import CategoryResponse
+from schemas.category_schema import CategoryResponse
 
 
 # Базовые схемы

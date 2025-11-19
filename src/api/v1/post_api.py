@@ -1,8 +1,8 @@
 from typing import List, Optional, Any
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
 
-from src.services.post_service import PostService, get_post_service
-from src.schemas.post_schema import (
+from services.post_service import PostService, get_post_service
+from schemas.post_schema import (
     PostCreate,
     PostUpdate,
     PostResponse,
