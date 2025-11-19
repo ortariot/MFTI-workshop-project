@@ -26,9 +26,16 @@ class DBConfig(BaseModel):
     # driver://user:password@host:port/db_name
 
 
+class AuthConfig(BaseModel):
+    sekret_key: str
+    algorithm: str
+    access_token_expire_minutes: int
+
+
 class Settings(BaseModel):
     app: APPConfig
     db: DBConfig
+    auth: AuthConfig
 
 
 env_settings = Dynaconf(settings_file=["settings.toml"])
@@ -36,6 +43,7 @@ env_settings = Dynaconf(settings_file=["settings.toml"])
 settings = Settings(
     app=env_settings["app_settings"],
     db=env_settings["db_settings"],
+    auth=env_settings["auth_settings"],
 )
 
 
