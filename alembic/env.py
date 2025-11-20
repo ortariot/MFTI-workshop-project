@@ -10,6 +10,7 @@ from alembic import context
 from src.models.base import Base
 from src.models.category import Category
 from src.models.post import Posts
+from src.models.users import User
 
 from src.configs.app import settings
 

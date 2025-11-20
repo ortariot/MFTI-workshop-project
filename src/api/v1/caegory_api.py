@@ -8,7 +8,7 @@ from schemas.category_schema import (
     CategoryUpdate,
 )
 from services.category_service import get_category_service, CategoryService
-
+from services.auth_service import get_auth_service, AuthService
 
 router = APIRouter()
 
@@ -24,6 +24,7 @@ async def create_category(
     category_data: CategoryCreate,
     service: CategoryService = Depends(get_category_service),
     # repository: CategoryRepository = Depends(get_category_repository)
+    auth: AuthService = Depends(get_auth_service)
 ):
     """
     Создать новую категорию
@@ -37,7 +38,7 @@ async def create_category(
 
     # category = await repository.create(category_data.dict())
     # return category
-
+    auth.get_current_user()
     res = await service.add_category(category_data)
     return res
 

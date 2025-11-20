@@ -3,41 +3,61 @@ from datetime import datetime, timedelta
 
 from fastapi import Depends, HTTPException, status, APIRouter
 
-from services.auth_service import get_current_active_user, create_access_token, authenticate_user
-from schemas.auth_schema import User, Token
+
+from services.auth_service import AuthService, get_auth_service
+from services.user_service import UserService, get_users_service
+from schemas.auth_schema import Token, Login
+from schemas.user_schema import UserRegistrate, UserResponse
 from configs.app import settings
-from repositories.auth import fake_users_db
 
 router = APIRouter()
 
 
+@router.post("/registrate", response_model=UserResponse)
+async def registrate(
+    form_data: UserRegistrate,
+    service: UserService = Depends(get_users_service),
+):
+    res = await service.create_user(form_data)
+
+    return res
+
+
 @router.post("/token", response_model=Token)
-async def login_for_access_token(form_data: dict):
-    user = authenticate_user(
-        fake_users_db, form_data["username"], form_data["password"]
-    )
+async def login_for_access_token(
+    form_data: Login, service: AuthService = Depends(get_auth_service)
+):
+    user = await service.authenticate_user(form_data.email, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=settings.auth.access_token_expire_minutes)
-    access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+    access_token_expires = timedelta(
+        minutes=settings.auth.access_token_expire_minutes
+    )
+    access_token = service.create_access_token(
+        data={"sub": user.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
- 
 
-@router.get("/users/me/", response_model=User)
-async def read_users_me(current_user: User = Depends(get_current_active_user)):
+
+@router.get("/users/me/", response_model=UserResponse)
+async def read_users_me(
+    service: AuthService = Depends(get_auth_service),
+):
+    current_user = await service.get_current_user()
+
     return current_user
 
 
 @router.get("/protected")
 async def protected_route(
-    current_user: User = Depends(get_current_active_user),
+    service: AuthService = Depends(get_auth_service),
 ):
+    current_user = await service.get_current_user()
+
     return {
-        "message": f"Hello {current_user.username}, this is a protected route!"
+        "message": f"Hello {current_user.username if current_user.username else current_user.email}, this is a protected route!"
     }

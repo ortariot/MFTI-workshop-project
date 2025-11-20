@@ -7,8 +7,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
-from models.base import Base, BaseModelMixin
-from configs.app import settings
+from .base import Base, BaseModelMixin
 
 
 class Category(Base, BaseModelMixin):

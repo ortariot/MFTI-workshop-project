@@ -5,77 +5,84 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 
-from schemas.auth_schema import UserInDB, TokenData, User
+from repositories.user import UserRepository, get_user_reposetory
+from schemas.auth_schema import TokenData
+from schemas.user_schema import UserResponse
 from configs.app import settings
-from repositories.auth import fake_users_db
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
 security = HTTPBearer()
 
 
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
+class AuthService:
 
+    def __init__(
+        self, repo: UserRepository, credentials: HTTPAuthorizationCredentials
+    ):
+        self.repo = repo
+        self.pwd_context = CryptContext(schemes=["sha512_crypt"])
+        self.credentials = credentials
 
-def get_password_hash(password):
-    return pwd_context.hash(password)
+    def verify_password(self, plain_password, hashed_password):
+        return self.pwd_context.verify(plain_password, hashed_password)
 
+    async def authenticate_user(self, email: str, password: str):
+        user = await self.repo.get_by_email(email)
 
-def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
-        return UserInDB(**user_dict)
+        if not user:
+            return False
+        if not self.verify_password(password, user.hashed_password):
+            return False
+        return user
 
+    def create_access_token(self, data: dict, expires_delta: timedelta = None):
+        to_encode = data.copy()
 
-def authenticate_user(fake_db, username: str, password: str):
-    user = get_user(fake_db, username)
-    if not user:
-        return False
-    if not verify_password(password, user.hashed_password):
-        return False
-    return user
-
-
-def create_access_token(data: dict, expires_delta: timedelta = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(
-        to_encode, settings.auth.sekret_key, algorithm=settings.auth.algorithm
-    )
-    return encoded_jwt
-
-
-async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
-):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(
-            credentials.credentials, settings.auth.sekret_key, algorithms=[settings.auth.algorithm]
+        if expires_delta:
+            expire = datetime.utcnow() + expires_delta
+        else:
+            expire = datetime.utcnow() + timedelta(minutes=15)
+            
+        to_encode.update({"exp": expire})
+        encoded_jwt = jwt.encode(
+            to_encode,
+            settings.auth.sekret_key,
+            algorithm=settings.auth.algorithm,
         )
-        username: str = payload.get("sub")
-        if username is None:
+        return encoded_jwt
+
+    async def get_current_user(
+        self,
+    ):
+        credentials_exception = HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+        try:
+            payload = jwt.decode(
+                self.credentials.credentials,
+                settings.auth.sekret_key,
+                algorithms=[settings.auth.algorithm],
+            )
+            email: str = payload.get("sub")
+            if email is None:
+                raise credentials_exception
+            token_data = TokenData(email=email)
+        except JWTError:
             raise credentials_exception
-        token_data = TokenData(username=username)
-    except JWTError:
-        raise credentials_exception
 
-    user = get_user(fake_users_db, username=token_data.username)
-    if user is None:
-        raise credentials_exception
-    return user
+        user = await self.repo.get_by_email(email)
+        if user.status is False:
+            raise HTTPException(status_code=400, detail="Inactive user")
+        if user is None:
+            raise credentials_exception
+        return user
 
 
-async def get_current_active_user(
-    current_user: User = Depends(get_current_user),
-):
-    if current_user.disabled:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
+async def get_auth_service(
+    repo: UserResponse = Depends(get_user_reposetory),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> AuthService:
+    return AuthService(repo, credentials)
