@@ -17,7 +17,7 @@ security = HTTPBearer()
 class AuthService:
 
     def __init__(
-        self, repo: UserRepository, credentials: HTTPAuthorizationCredentials
+        self, repo: UserRepository, credentials: HTTPAuthorizationCredentials | None = None
     ):
         self.repo = repo
         self.pwd_context = CryptContext(schemes=["sha512_crypt"])
@@ -79,6 +79,12 @@ class AuthService:
         if user is None:
             raise credentials_exception
         return user
+
+
+async def get_req_service(
+    repo: UserResponse = Depends(get_user_reposetory),
+) -> AuthService:
+    return AuthService(repo)
 
 
 async def get_auth_service(

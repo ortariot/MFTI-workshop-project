@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status, APIRouter
 
 
-from services.auth_service import AuthService, get_auth_service
+from services.auth_service import AuthService, get_auth_service, get_req_service
 from services.user_service import UserService, get_users_service
 from schemas.auth_schema import Token, Login
 from schemas.user_schema import UserRegistrate, UserResponse
@@ -25,9 +25,10 @@ async def registrate(
 
 @router.post("/token", response_model=Token)
 async def login_for_access_token(
-    form_data: Login, service: AuthService = Depends(get_auth_service)
+    form_data: Login, service: AuthService = Depends(get_req_service)
 ):
     user = await service.authenticate_user(form_data.email, form_data.password)
+    print(user)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
