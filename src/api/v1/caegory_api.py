@@ -52,10 +52,13 @@ async def get_all_categories(
     skip: int = Query(0, ge=0, description="Количество записей для пропуска"),
     limit: int = Query(100, ge=1, le=1000, description="Лимит записей"),
     service: CategoryService = Depends(get_category_service),
+    auth: AuthService = Depends(get_auth_service)
 ):
     """
     Получить список всех категорий с пагинацией
     """
+
+    auth.get_current_user()
     categories = await service.get_all(skip=skip, limit=limit)
     return categories
 
