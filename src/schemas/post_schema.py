@@ -15,7 +15,6 @@ class PostBase(BaseModel):
 
 # Схемы для создания и обновления
 class PostCreate(PostBase):
-    media_id: UUID
     desc: str
 
 

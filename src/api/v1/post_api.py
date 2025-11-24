@@ -1,6 +1,20 @@
+import os
+from uuid import UUID, uuid4
 from typing import List, Optional, Any
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    status,
+    Query,
+    Body,
+    UploadFile,
+    File,
+    Form,
+    BackgroundTasks,
+)
 
+import aiofiles
 from services.post_service import PostService, get_post_service
 from schemas.post_schema import (
     PostCreate,
@@ -110,6 +124,13 @@ async def get_post_by_media_id(
     return post
 
 
+async def get_post_data(
+    desc: str = Form(...), category_id: UUID = Form(...)
+) -> PostCreate:
+
+    return PostCreate(desc=desc, category_id=category_id, media_id=uuid4())
+
+
 @router.post(
     "/",
     response_model=PostResponse,
@@ -117,10 +138,18 @@ async def get_post_by_media_id(
     summary="создать пост",
 )
 async def create_post(
-    post_data: PostCreate,
+    post_data: PostCreate = Depends(get_post_data),
+    file: UploadFile = File(...),
     service: PostService = Depends(get_post_service),
 ):
     """Создать новый пост"""
+    content = await file.read()
+
+    if not content:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="It empty file",
+        )
 
     # Проверка на существование media_id
     if await service.media_exists(post_data.media_id):
@@ -129,7 +158,60 @@ async def create_post(
             detail="Post with this media_id already exists",
         )
 
-    return await service.create_post(post_data)
+    res = await service.create_post(post_data)
+
+    with open(f"content/{res.media_id}.jpg", "wb") as f:
+        f.write(content)
+
+    return res
+
+
+async def save_file_bg(contents: bytes, filename: str):
+
+    try:
+
+        os.makedirs("content", exist_ok=True)
+
+        async with aiofiles.open(f"content/{filename}.jpg", "wb") as f:
+            f.write(contents)
+        print(f"file {filename} saved")
+    except Exception as e:
+        print(f"error - {e}")
+
+
+@router.post(
+    "/bg",
+    response_model=PostResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="создать пост",
+)
+async def create_post_bg(
+    post_data: PostCreate = Depends(get_post_data),
+    file: UploadFile = File(...),
+    service: PostService = Depends(get_post_service),
+    background_task: BackgroundTasks = BackgroundTasks(),
+):
+
+    content = await file.read()
+
+    if not content:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="It empty file",
+        )
+
+    if await service.media_exists(post_data.media_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Post with this media_id already exists",
+        )
+
+    res = await service.create_post(post_data)
+    background_task.add_task(
+        save_file_bg, contents=content, filename=res.media_id
+    )
+
+    return res
 
 
 @router.put("/{post_id}", response_model=PostResponse, summary="обновить пост")
@@ -335,7 +417,7 @@ async def get_posts_count(service: PostService = Depends(get_post_service)):
 @router.get(
     "/stats/count/category/{category_id}",
     response_model=PostsCountByCategoryResponse,
-    summary="счётчик постов по категории"
+    summary="счётчик постов по категории",
 )
 async def get_posts_count_by_category(
     category_id: Any, service: PostService = Depends(get_post_service)
@@ -351,7 +433,7 @@ async def get_posts_count_by_category(
     "/bulk",
     response_model=List[PostResponse],
     status_code=status.HTTP_201_CREATED,
-    summary="создать несколько постов"
+    summary="создать несколько постов",
 )
 async def create_multiple_posts(
     posts_data: List[PostCreate],

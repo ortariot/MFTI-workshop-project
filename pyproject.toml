@@ -21,6 +21,7 @@ dependencies = [
     "python-multipart (>=0.0.20,<0.0.21)",
     "bcrypt (>=5.0.0,<6.0.0)",
     "pydantic[email] (>=2.12.4,<3.0.0)",
+    "aiofiles (>=25.1.0,<26.0.0)",
 ]
 
 [tool.poetry]

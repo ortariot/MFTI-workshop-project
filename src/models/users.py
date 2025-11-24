@@ -13,7 +13,7 @@ class User(Base, BaseModelMixin):
     email = Column(String, nullable=False, unique=True)
     hashed_password = Column(String, nullable=False)
     status = Column(Boolean, nullable=False, default=True)
-
+    
     def __repr__(self) -> str:
         return (
             f"uuid - {self.uuid}, username - {self.username}"
