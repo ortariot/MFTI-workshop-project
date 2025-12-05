@@ -32,10 +32,16 @@ class AuthConfig(BaseModel):
     access_token_expire_minutes: int
 
 
+
+class Cache(BaseModel):
+    cache_port: int
+    cache_host: str
+
 class Settings(BaseModel):
     app: APPConfig
     db: DBConfig
     auth: AuthConfig
+    cache: Cache
 
 
 env_settings = Dynaconf(settings_file=["settings.toml"])
@@ -44,6 +50,7 @@ settings = Settings(
     app=env_settings["app_settings"],
     db=env_settings["db_settings"],
     auth=env_settings["auth_settings"],
+    cache=env_settings["cache_settings"],
 )
 
 

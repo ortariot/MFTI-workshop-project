@@ -16,3 +16,7 @@ db_user = "user"
 db_password = "password"
 db_host = "localhost"
 db_port = 5432
+
+[cache_settings]
+cache_port = 6379
+cache_host = "localhost"

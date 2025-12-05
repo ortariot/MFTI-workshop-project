@@ -1,7 +1,7 @@
 from uuid import UUID
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class CategoryBase(BaseModel):
@@ -19,7 +19,9 @@ class CategoryUpdate(BaseModel):
 
 
 class CategoryResponse(CategoryBase):
+    model_config = ConfigDict(from_attributes = True)
+
     uuid: UUID
 
-    class Config:
-        from_attributes = True
+    # class Config:
+    #     from_attributes = True
