@@ -27,7 +27,7 @@ class DBConfig(BaseModel):
 
 
 class AuthConfig(BaseModel):
-    sekret_key: str
+    secret_key: str
     algorithm: str
     access_token_expire_minutes: int
 
@@ -44,7 +44,11 @@ class Settings(BaseModel):
     cache: Cache
 
 
-env_settings = Dynaconf(settings_file=["settings.toml"])
+env_settings = Dynaconf(
+    envvar_prefix="DOCKER",
+    load_dotenv=True,
+    settings_file=["settings.toml"]
+    )
 
 settings = Settings(
     app=env_settings["app_settings"],

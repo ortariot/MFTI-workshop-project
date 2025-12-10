@@ -4,9 +4,8 @@ app_name = "image cloude"
 app_host = "0.0.0.0"
 app_port = 8000
 
-
 [auth_settings]
-sekret_key = "mipt"
+secret_key = "mipt"
 algorithm = "HS256"
 access_token_expire_minutes = 30
 
